@@ -1,13 +1,7 @@
 from fastapi import FastAPI
+from app.api.endpoints import users  # Import the router with authentication endpoints
 
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+# Register the authentication router with a prefix
+app.include_router(users.router, prefix="/auth")

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app.db.database import Base
 
@@ -7,18 +7,18 @@ from app.db.database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)  # Primary key, unique identifier
-    username = Column(String, unique=True, index=True)  # User's username, unique and indexed
-    password = Column(String)  # User's hashed password
+    id = Column(Integer, primary_key=True, index=True)  # Primary key for the User
+    username = Column(String, unique=True, index=True)  # Unique username
+    password = Column(String)  # Hashed password
 
 
 # SQLAlchemy model for the Task table
 class Task(Base):
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)  # Primary key, unique identifier
-    title = Column(String, index=True)  # Task title, indexed
-    description = Column(Text, nullable=True)  # Task description (optional)
-    is_completed = Column(Boolean, default=False)  # Task status (completed or not)
-    created_at = Column(DateTime, server_default=func.now())  # Timestamp for task creation
-    user_id = Column(Integer, nullable=False)  # Foreign key linking to User
+    id = Column(Integer, primary_key=True, index=True)  # Primary key for the Task
+    title = Column(String, index=True)  # Title of the Task
+    description = Column(Text, nullable=True)  # Optional description
+    is_completed = Column(Boolean, default=False)  # Task status
+    created_at = Column(DateTime, server_default=func.now())  # Timestamp for Task creation
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # Reference to User
