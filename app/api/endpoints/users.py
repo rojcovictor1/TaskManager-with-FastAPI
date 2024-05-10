@@ -37,13 +37,13 @@ def login_user(user: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.get("/me/", response_model=UserResponse)
-def get_current_user_info(user: str = Depends(get_current_user), db: Session = Depends(get_db)):
-    db_user = db.query(User).filter_by(username=user).first()
-    if not db_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return db_user
+def get_current_user_info(current_user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    # Since current_user is now a User object, we can directly return it
+    return current_user
 
 
 @router.get("/protected/")
-def protected_endpoint(user: str = Depends(get_current_user)):
-    return {"message": f"Hello, {user}! You are authenticated."}
+def protected_endpoint(current_user: User = Depends(get_current_user)):
+    # Using the User object to greet the user
+    return {"message": f"Hello, {current_user.username}! You are authenticated."}

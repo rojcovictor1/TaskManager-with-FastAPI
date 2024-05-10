@@ -6,6 +6,11 @@ from jose import JWTError
 from dotenv import load_dotenv
 import os
 
+from sqlalchemy.orm import Session
+
+from app.db.dependencies import get_db
+from app.db.models import User
+
 load_dotenv()  # Load environment variables
 
 # Retrieve secret key from environment
@@ -32,7 +37,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
 
 # Function to decode JWT token and get user data
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -42,7 +47,13 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
                 detail="Invalid token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-        return username
+        user = db.query(User).filter(User.username == username).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found",
+            )
+        return user
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
